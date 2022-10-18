@@ -1,28 +1,45 @@
 import { cPixel } from "./classPixel.js";
-export class cPalette {
-    constructor (startColor=cPixel(), endColor=cPixel,iLength=255) { // constructor with default values kicking in if none is provided at new()
-        this.length = iLength;
-        this.colors = [];
-        let rgbaJumper= 0;
-        const rStep = Math.abs(startColor.red - endColor.red) / iLength;
-        const gStep = Math.abs(startColor.green - endColor.green) / iLength;
-        const bStep = Math.abs(startColor.blue - endColor.blue) / iLength;
-        const aStep = Math.abs(startColor.alpha - endColor.alpha) / iLength;
-        let iRed    = startColor.red;
-        let iGreen  = startColor.green;
-        let iBlue   = startColor.blue;
-        let iAlpha  = startColor.alpha;
 
-        for (let i=0; i<=this.length;i++) { // spread the gradient from start to end color over the length requested
-            this.colors[rgbaJumper] = iRed;
-            this.colors[rgbaJumper+1] = iGreen;
-            this.colors[rgbaJumper+2] = iBlue;
-            this.colors[rgbaJumper+3] = iAlpha;
-            iRed = Math.floor(iRed + i * rStep);
-            iGreen = Math.floor(iGreen + i * gStep);
-            iBlue = Math.floor(iBlue + i * bStep);
-            iAlpha = Math.floor(iAlpha + i * aStep);
-            rgbaJumper+=4;
+export class cPalette {
+    constructor (startColor=cPixel, endColor=cPixel,iLength=255) { // constructor with default values kicking in if none is provided at new()
+        //this.length = iLength;
+        this.couleurs = []; // array de pixels RGBa
+        const rStep = (endColor.red - startColor.red) / iLength;
+        const gStep = (endColor.green - startColor.green) / iLength;
+        const bStep = (endColor.blue - startColor.blue) / iLength;
+        const aStep = (endColor.alpha - startColor.alpha) / iLength;
+        
+        for (let i=0; i<=iLength;i++) { // spread the gradient from start to end color over the length requested
+            let iRed = Math.floor(startColor.red + (i * rStep));
+            let iGreen = Math.floor(startColor.green + i * gStep);
+            let iBlue = Math.floor(startColor.blue + i * bStep);
+            let iAlpha = Math.floor(startColor.alpha + i * aStep);
+            let pix = new cPixel (iRed, iGreen, iBlue, iAlpha);
+            this.couleurs[i] = pix;
+            //console.log("rouge:" + this.couleurs[i].red);
         }
     }
-}
+    getLength () {
+        return this.couleurs.length;
+    }
+
+
+    static add(palette1, palette2){
+        
+        let idx=0;
+        let ip1Length=palette1.getLength();
+        let ip2Length = palette2.getLength();
+        let extPalette = new cPalette(palette1.couleurs[0], palette1.couleurs[0], ip1Length + ip2Length -2);
+        for (let i=0;i<ip1Length-1; i++){
+            extPalette.couleurs[idx] = palette1.couleurs[i];
+            idx++;
+        }
+        
+        for (let j = 0; j < ip2Length-1; j++) {
+            extPalette.couleurs[idx] = palette2.couleurs[j];
+            idx++;
+        }
+        return extPalette;
+    }
+
+} // endoOfClass
